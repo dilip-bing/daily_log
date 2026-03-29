@@ -1,0 +1,27 @@
+name: Daily streak commit
+
+on:
+  schedule:
+    - cron: '55 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  streak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pick today's script
+        run: python3 scripts/picker.py
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add daily/
+          git diff --cached --quiet && echo "Nothing new" || \
+            git commit -m "daily: $(date -u +%Y-%m-%d)"
+          git push
